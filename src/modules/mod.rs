@@ -1,10 +1,24 @@
-use std::{future::Future, collections::HashMap};
+/*
+* available modules
+*/
+
+pub mod core;
+
+
+
+
+/*
+* Types
+*/
+
+use std::collections::HashMap;
 use anyhow::Result;
+use futures::future::BoxFuture;
 use serenity::{prelude::Context, model::prelude::Message};
 
 
 
-pub type SkittleModuleCommand = fn(ctx: Context, msg: Message, args: Vec<String>) -> dyn Future<Output = Result<()>>;
+pub type SkittleModuleCommand = fn(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static, Result<()>>;
 
 #[derive(Debug, Clone)]
 pub struct SkittleModule {
@@ -16,6 +30,7 @@ pub struct SkittleModule {
     // TODO: add events
 }
 
+#[allow(dead_code)]
 impl SkittleModule {
     pub fn register(name: &str) -> Self {
         Self {

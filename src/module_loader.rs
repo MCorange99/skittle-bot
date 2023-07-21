@@ -1,30 +1,30 @@
-use std::ffi::OsStr;
+use std::collections::HashMap;
 
-use crate::CoreData;
+use crate::{modules, CoreData};
 use anyhow::Result;
 
-use libloading;
-use skittle_bot_core::SkittleModule;
+use crate::modules::SkittleModule;
 
 pub fn load(cd: &mut CoreData) -> Result<()> {
-    unsafe {
+    let mut commands: HashMap<String, String> = HashMap::new();
 
-        let modules = std::fs::read_dir("./modules")?;
-        
-        for module_file in modules {
-            let module_file = module_file?;
-            if !module_file.file_type()?.is_file() { continue; }
-            if module_file.path().extension().unwrap_or_default().to_str().unwrap_or("") != "so" { 
-                log::warn!("Non module file found in module folder: {:?}", module_file.path());
-                continue;
-            }
-            
-            let module = libloading::Library::new(module_file.path())?;
-            let module_reg_fn = module.get::<fn() -> SkittleModule>(b"register")?;
-            let mut module_registration = module_reg_fn();
-            cd.modules.insert(module_registration.name(), module_registration);
+    #[cfg(feature = "core")]
+    load_module(cd, &mut commands, modules::core::register());
+
+
+    Ok(())
+}
+
+
+fn load_module(cd: &mut CoreData, commands: &mut HashMap<String, String>, mut module: SkittleModule) {
+    for comm in module.commands() {           
+        if commands.contains_key(&comm.0) {
+            let first = commands.get(&comm.0).unwrap();
+            log::error!("A duplicate command was attempted to register (First: {}::{}) (Second: {}::{})", first, comm.0, module.name(), comm.0);
         }
-        
-        Ok(())
+        log::info!("Registered command: {}::{}", module.name(), comm.0);
+        commands.insert(comm.0, module.name());
+        cd.modules.insert(module.name(), module);
+        break;
     }
 }

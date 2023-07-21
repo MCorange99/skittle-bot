@@ -2,18 +2,20 @@ mod config;
 mod handler;
 mod util;
 mod module_loader;
+mod modules;
 
-use skittle_bot_core;
+// use skittle_bot_core;
 
-use std::sync::{Arc, atomic::AtomicUsize, Mutex};
+use std::sync::Arc;
 use std::collections::HashMap;
 use anyhow::Result;
 use serenity::{prelude::{TypeMapKey, GatewayIntents}, Client};
 use tokio::{self, sync::RwLock};
-
+use crate::modules::SkittleModule;
+#[derive(Debug)]
 pub struct CoreData {
     config: config::CoreConfig,
-    modules: HashMap<String, skittle_bot_core::SkittleModule>
+    modules: HashMap<String, SkittleModule>
 }
 
 impl TypeMapKey for CoreData {
@@ -39,12 +41,12 @@ async fn main() -> Result<()>{
 
     log::info!("Loading modules");
     module_loader::load(&mut cdata)?;
-    
+    log::info!("{cdata:#?}");
     log::info!("Building client");
 
     let mut client =
         Client::builder(&cdata.config.token, intents)
-            .event_handler(handler::Handler)
+            .event_handler(handler::Handler::default())
             .type_map_insert::<CoreData>(RwLock::new(Arc::from(cdata)))
             .await
             .expect("Err creating client");
