@@ -4,7 +4,6 @@ use crate::modules::SkittleModule;
 
 
 
-#[no_mangle]
 pub fn register() -> SkittleModule {
     let mut module = SkittleModule::register("core");
     module.set_author("mcorange");
@@ -12,7 +11,9 @@ pub fn register() -> SkittleModule {
     module.set_description("The core utils for skittle bot");
 
 
-    module.register_command("ping", commands::ping::exec);
+    module.register_command("ping",   commands::ping::exec,    commands::ping::HELP   );
+    module.register_command("modules",commands::modules::exec, commands::modules::HELP);
+    module.register_command("help",   commands::help::exec,    commands::help::HELP   );
 
 
     module.clone()

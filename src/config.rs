@@ -1,14 +1,21 @@
-use anyhow::Result;
+use color_eyre::Result;
 use toml;
 
-#[derive(serde::Deserialize, serde::Serialize, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct CoreConfig {
     pub prefix: String,
     pub token: String,
     pub client_id: String,
     pub client_secret: String,
-    pub invite: String
+    pub invite: String,
+    pub modules: CoreConfigModules
 }
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+pub struct CoreConfigModules {
+    pub disabled_modules: Vec<String>
+}
+
 
 
 
@@ -18,5 +25,5 @@ pub fn get_core_config() -> Result<CoreConfig> {
 }
 #[allow(dead_code)]
 pub fn set_core_config(cfg: CoreConfig) -> Result<()> {
-    Ok(std::fs::write("", toml::to_string_pretty(&cfg)?)?)
+    Ok(std::fs::write("./config/core.toml", toml::to_string_pretty(&cfg)?)?)
 }

@@ -10,7 +10,8 @@ default=["core"]
 core=[]
 
 [dependencies]
-anyhow = "1.0.72"
+color-eyre = "0.6.2"
+dotenv = "0.15.0"
 env_logger = "0.10.0"
 futures = "0.3.28"
 log = "0.4.19"

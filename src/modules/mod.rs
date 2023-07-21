@@ -3,6 +3,7 @@
 */
 
 pub mod core;
+pub mod test;
 
 
 
@@ -12,7 +13,7 @@ pub mod core;
 */
 
 use std::collections::HashMap;
-use anyhow::Result;
+use color_eyre::Result;
 use futures::future::BoxFuture;
 use serenity::{prelude::Context, model::prelude::Message};
 
@@ -26,7 +27,7 @@ pub struct SkittleModule {
     description: Option<String>,
     version: Option<String>,
     author: Option<String>,
-    commands: HashMap<String, SkittleModuleCommand>
+    commands: HashMap<String, (SkittleModuleCommand, &'static str)>
     // TODO: add events
 }
 
@@ -70,11 +71,11 @@ impl SkittleModule {
         self.author.clone().unwrap_or("No author provided".to_string())
     }
 
-    pub fn commands(&mut self) -> HashMap<String, SkittleModuleCommand> {
+    pub fn commands(&mut self) -> HashMap<String, (SkittleModuleCommand, &'static str)> {
         self.commands.clone()
     }
 
-    pub fn register_command(&mut self, name: &str, comm: SkittleModuleCommand) {
-        self.commands.insert(name.to_string(), comm);
+    pub fn register_command(&mut self, name: &str, comm: SkittleModuleCommand, help: &'static str) {
+        self.commands.insert(name.to_string(), (comm, help));
     }
 }

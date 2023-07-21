@@ -13,15 +13,16 @@ impl EventHandler for Handler {
     // Event handlers are dispatched through a threadpool, and so multiple
     // events can be dispatched simultaneously.
     async fn message(&self, ctx: Context, msg: Message) {
-       
-        let data = ctx.clone();
-        let data = data.data.read().await;
-        let cdata = data.get::<CoreData>().unwrap().read().await;
+        
+        let cd_lock = {
+            let data_read = ctx.data.read().await;
+            data_read.get::<CoreData>().unwrap().clone()
+        };
 
-        let prefix = &cdata.config.prefix;
+        let prefix = {cd_lock.read().await.config.prefix.clone()};
 
-        if msg.content.trim().starts_with(prefix) {
-            let Ok(argv) = shellwords::split(msg.content.trim().strip_prefix(prefix).unwrap().trim()) else {
+        if msg.content.trim().starts_with(&prefix) {
+            let Ok(argv) = shellwords::split(msg.content.trim().strip_prefix(&prefix).unwrap().trim()) else {
                 // if let Err(why) = msg.channel_id.say(&ctx.http, "Pong!").await {
                 //     log::error!("Failed to send message: {why:?}");
                 //     return;
@@ -29,15 +30,21 @@ impl EventHandler for Handler {
                 return;
             };
 
-            if let Err(why) = msg.channel_id.say(&ctx.http, format!("Parsed: {argv:#?}")).await {
-                log::error!("Failed to send message: {why:?}");
-                return;
-            }
+            // if let Err(why) = msg.channel_id.say(&ctx.http, format!("Parsed: {argv:#?}")).await {
+            //     log::error!("Failed to send message: {why:?}");
+            //     return;
+            // }
 
+            
+
+            let cdata = {cd_lock.read().await.clone()};
             'outer: for (_, mut module) in cdata.modules.clone() {
                 for fun in module.commands() {
                     if fun.0 == argv[0] {
-                        (fun.1)(ctx, msg, argv.clone()).await.unwrap();
+                        log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
+                        if let Err(e) = (fun.1.0)(ctx, msg, argv).await {
+                            log::warn!("Failed to execute command: {e}");
+                        };
                         break 'outer;
                     }
                 }

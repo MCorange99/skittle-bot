@@ -8,14 +8,15 @@ mod modules;
 
 use std::sync::Arc;
 use std::collections::HashMap;
-use anyhow::Result;
+use color_eyre::Result;
 use serenity::{prelude::{TypeMapKey, GatewayIntents}, Client};
 use tokio::{self, sync::RwLock};
 use crate::modules::SkittleModule;
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CoreData {
     config: config::CoreConfig,
-    modules: HashMap<String, SkittleModule>
+    modules: HashMap<String, SkittleModule>,
+    available_modules: Vec<String>
 }
 
 impl TypeMapKey for CoreData {
@@ -24,16 +25,14 @@ impl TypeMapKey for CoreData {
     // kinds of atomic operators.
     //
     // Arc should stay, to allow for the data lock to be closed early.
-    type Value = RwLock<Arc<CoreData>>;
+    type Value = Arc<RwLock<CoreData>>;
 }
 
 #[tokio::main]
 async fn main() -> Result<()>{
+    dotenv::dotenv()?;
     env_logger::init();
-    let mut cdata = CoreData {
-        config: config::get_core_config()?,
-        modules: HashMap::new()
-    };
+    let mut cdata = CoreData { config:config::get_core_config()?,modules:HashMap::new(), available_modules: vec![] };
 
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES
@@ -41,13 +40,13 @@ async fn main() -> Result<()>{
 
     log::info!("Loading modules");
     module_loader::load(&mut cdata)?;
-    log::info!("{cdata:#?}");
+    log::debug!("{cdata:#?}");
     log::info!("Building client");
 
     let mut client =
         Client::builder(&cdata.config.token, intents)
             .event_handler(handler::Handler::default())
-            .type_map_insert::<CoreData>(RwLock::new(Arc::from(cdata)))
+            .type_map_insert::<CoreData>(Arc::new(RwLock::new(cdata)))
             .await
             .expect("Err creating client");
 
