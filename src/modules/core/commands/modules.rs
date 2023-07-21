@@ -3,10 +3,23 @@ use futures::{future::BoxFuture, FutureExt};
 use serenity::{prelude::Context, model::{prelude::Message, Timestamp}};
 use color_eyre::Result;
 
-use crate::CoreData;
+use crate::{CoreData, modules::{SkittleModuleCommand, SkittleModuleCommandBuilder}};
 
 
-pub const HELP: &'static str = "modules list (Lists all modules)\nmodules [module name] (prints module info)\nmodules [module name] [enable/disable] (disables/enables module)";
+
+pub fn register() -> SkittleModuleCommand {
+    SkittleModuleCommandBuilder::new(exec)
+        .help(vec![
+            ("modules list",                            "Lists all modules"      ),
+            ("modules [module name]",                   "prints module info"     ),
+            ("modules [module name] [enable/disable]",  "disables/enables module"),
+        ])
+        .dev_only(true)
+        .required_user_permissions(vec![])
+        .required_bot_permissions(vec![])
+        .build()
+}
+
 
 pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static, Result<()>>  {
     async move {

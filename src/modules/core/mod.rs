@@ -11,9 +11,9 @@ pub fn register() -> SkittleModule {
     module.set_description("The core utils for skittle bot");
 
 
-    module.register_command("ping",   commands::ping::exec,    commands::ping::HELP   );
-    module.register_command("modules",commands::modules::exec, commands::modules::HELP);
-    module.register_command("help",   commands::help::exec,    commands::help::HELP   );
+    module.register_command("ping",   commands::ping::register());
+    module.register_command("modules",commands::modules::register());
+    module.register_command("help",   commands::help::register());
 
 
     module.clone()

@@ -39,10 +39,10 @@ impl EventHandler for Handler {
 
             let cdata = {cd_lock.read().await.clone()};
             'outer: for (_, mut module) in cdata.modules.clone() {
-                for fun in module.commands() {
-                    if fun.0 == argv[0] {
+                for (k, fun) in module.commands() {
+                    if k == argv[0] {
                         log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
-                        if let Err(e) = (fun.1.0)(ctx, msg, argv).await {
+                        if let Err(e) = (fun.exec)(ctx, msg, argv).await {
                             log::warn!("Failed to execute command: {e}");
                         };
                         break 'outer;
