@@ -4,18 +4,35 @@ use toml;
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct CoreConfig {
     pub prefix: String,
+    pub secrets: CoreConfigSecrets,
+    pub users: CoreConfigUsers,
+    pub roles: CoreConfigRoles,
+    pub modules: CoreConfigModules
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+pub struct CoreConfigSecrets {
     pub token: String,
     pub client_id: String,
     pub client_secret: String,
     pub invite: String,
-    pub modules: CoreConfigModules
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+pub struct CoreConfigUsers {
+    pub developers: Vec<String>
+}
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
+pub struct CoreConfigRoles {
+    pub administrator: Vec<String>,
+    pub moderator: Vec<String>,
 }
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct CoreConfigModules {
     pub disabled_modules: Vec<String>
 }
-
 
 
 

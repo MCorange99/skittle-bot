@@ -25,16 +25,13 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
             let data_read = ctx.data.read().await;
             data_read.get::<CoreData>().unwrap().clone()
         };
-        log::debug!("1");
         if args.len() < 2 {
 
             let mut helps = Vec::new();
-            log::debug!("2");
 
             let cd = {cd_lock.read().await.clone()};
 
             for (modl_name, modl) in cd.modules {
-                log::debug!("3");
                 let mut module_helps = String::new();
                 
                 for comm in modl.commands {

@@ -13,8 +13,8 @@ pub fn load(cd: &mut CoreData) -> Result<()> {
 
     #[cfg(feature = "core")]
     load_module(cd, &mut commands, modules::core::register());
-
-    load_module(cd, &mut commands, modules::test::register());
+    
+    load_module(cd, &mut commands, modules::moderation::register());
 
 
     Ok(())

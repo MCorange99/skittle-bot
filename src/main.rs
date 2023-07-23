@@ -45,7 +45,7 @@ async fn main() -> Result<()>{
     log::info!("Building client");
 
     let mut client =
-        Client::builder(&cdata.config.token, intents)
+        Client::builder(&cdata.config.secrets.token, intents)
             .event_handler(handler::Handler::default())
             .type_map_insert::<CoreData>(Arc::new(RwLock::new(cdata)))
             .await

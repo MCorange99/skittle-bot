@@ -41,6 +41,10 @@ impl EventHandler for Handler {
             'outer: for (_, mut module) in cdata.modules.clone() {
                 for (k, fun) in module.commands() {
                     if k == argv[0] {
+
+
+
+                        
                         log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
                         if let Err(e) = (fun.exec)(ctx, msg, argv).await {
                             log::warn!("Failed to execute command: {e}");
