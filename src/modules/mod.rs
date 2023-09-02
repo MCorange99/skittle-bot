@@ -4,7 +4,7 @@
 
 pub mod core;
 pub mod moderation;
-
+pub mod music;
 
 
 

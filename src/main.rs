@@ -37,7 +37,9 @@ async fn main() -> Result<()>{
 
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES
-        | GatewayIntents::MESSAGE_CONTENT;
+        | GatewayIntents::MESSAGE_CONTENT
+        | GatewayIntents::GUILD_VOICE_STATES
+        ;
 
     log::info!("Loading modules");
     module_loader::load(&mut cdata)?;

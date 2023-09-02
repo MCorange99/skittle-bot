@@ -15,6 +15,7 @@ pub fn load(cd: &mut CoreData) -> Result<()> {
     load_module(cd, &mut commands, modules::core::register());
     
     load_module(cd, &mut commands, modules::moderation::register());
+    load_module(cd, &mut commands, modules::music::register());
 
 
     Ok(())
