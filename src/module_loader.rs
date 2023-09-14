@@ -14,7 +14,9 @@ pub fn load(cd: &mut CoreData) -> Result<()> {
     #[cfg(feature = "core")]
     load_module(cd, &mut commands, modules::core::register());
     
+    #[cfg(feature = "moderation")]
     load_module(cd, &mut commands, modules::moderation::register());
+    #[cfg(feature = "music")]
     load_module(cd, &mut commands, modules::music::register());
 
 

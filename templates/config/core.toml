@@ -1,5 +1,9 @@
 prefix=":3"
 
+debug=false
+write_logs_to_file = false
+db_path="./db"
+
 [secrets]
 
 token=""
@@ -15,4 +19,4 @@ moderator=[]
 developers=["290545409481244672"]
 
 [modules]
-disabled_modules=[]
+disabled_modules=[] 
