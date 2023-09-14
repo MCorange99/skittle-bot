@@ -4,6 +4,9 @@ use toml;
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct CoreConfig {
     pub prefix: String,
+    pub db_dir: String,
+    pub write_logs_to_file: bool,
+    pub debug: bool,
     pub secrets: CoreConfigSecrets,
     pub users: CoreConfigUsers,
     pub roles: CoreConfigRoles,

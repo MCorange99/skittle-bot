@@ -32,18 +32,23 @@ impl TypeMapKey for CoreData {
 #[tokio::main]
 async fn main() -> Result<()>{
     dotenv::dotenv()?;
-    env_logger::init();
-    let mut cdata = CoreData { config:config::get_core_config()?,modules:HashMap::new(), available_modules: vec![] };
+
+    let config = config::get_core_config()?;
+
+    logger_init(&config);
+
+    let mut cdata = CoreData {
+        config,
+        modules: HashMap::new(),
+        available_modules: vec![]
+    };
 
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::DIRECT_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT
-        | GatewayIntents::GUILD_VOICE_STATES
-        ;
+        | GatewayIntents::GUILD_VOICE_STATES;
 
-    log::info!("Loading modules");
     module_loader::load(&mut cdata)?;
-    log::debug!("{cdata:#?}");
     log::info!("Building client");
 
     let mut client =
@@ -60,4 +65,56 @@ async fn main() -> Result<()>{
     }
 
     Ok(())
+}
+
+
+fn logger_init(config: &CoreConfig) {
+
+    let log_dir = Path::new("./logs");
+
+    if !log_dir.is_dir() {
+        let _ = std::fs::DirBuilder::new().create(log_dir);
+    }
+    
+    if config.write_logs_to_file {
+
+        use std::io::Write;
+        let target = Box::new(
+            File::options()
+                .append(true)
+                .create(true)
+                .open(
+                log_dir.join(
+                    format!("{}-log.txt", Local::now().format("%Y-%m-%d"))
+                )
+            ).expect("Can't create file"));
+    
+        let mut logger = env_logger::Builder::new();
+        let logger = logger.target(env_logger::Target::Pipe(target));
+    
+    
+        let logger = if config.debug {
+            logger.filter(None, LevelFilter::Debug)
+        } else {
+            logger.filter(Some("tracing::span"), LevelFilter::Warn)
+                .filter(Some("serenity"), LevelFilter::Warn)
+                .filter(Some("skittle_bot_core"), LevelFilter::Info)
+        };
+            
+        logger.format(|buf, record| {
+                writeln!(
+                    buf,
+                    "[{} {} {}:{}] {}",
+                    Local::now().format("%Y-%m-%d %H:%M:%S%.3f"),
+                    record.level(),
+                    record.file().unwrap_or("unknown"),
+                    record.line().unwrap_or(0),
+                    record.args()
+                )
+            })
+            .init();
+    } else {
+        env_logger::init();
+    }
+
 }
