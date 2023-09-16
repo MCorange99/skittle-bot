@@ -1,8 +1,9 @@
 -- Your SQL goes here
-CREATE TABLE moderation_message_references (
-    entry_id INTEGER PRIMARY KEY NOT NULL,
-    message_id INTEGER NOT NULL,
-    note TEXT, -- wtf is this?
-
-    FOREIGN KEY(message_id) REFERENCES moderation_messages(message_id)
+CREATE TABLE IF NOT EXISTS "message_references" (
+	"message_reference"	INTEGER,
+	"entry_id"	INTEGER,
+	"message_id"	INTEGER NOT NULL,
+	"note"	TEXT,
+	FOREIGN KEY("message_id") REFERENCES "moderation_messages"("message_id"),
+	PRIMARY KEY("message_reference","entry_id")
 );

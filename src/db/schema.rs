@@ -2,7 +2,7 @@
 
 diesel::table! {
     core_associations (association_id) {
-        association_id -> Integer,
+        association_id -> Nullable<Integer>,
         user_id -> Integer,
         associated_user_id -> Integer,
     }
@@ -10,47 +10,48 @@ diesel::table! {
 
 diesel::table! {
     core_users (user_id) {
-        user_id -> Integer,
+        user_id -> Nullable<Integer>,
     }
 }
 
 diesel::table! {
-    moderation_bans (ban_id) {
-        ban_id -> Integer,
-        target_id -> Integer,
-        moderator_id -> Integer,
-        ban_reason -> Nullable<Text>,
-        ban_duration -> Nullable<Integer>,
-    }
-}
-
-diesel::table! {
-    moderation_kicks (kick_id) {
-        kick_id -> Integer,
-        target_id -> Integer,
-        moderator_id -> Integer,
-        kick_reason -> Text,
-    }
-}
-
-diesel::table! {
-    moderation_message_references (entry_id) {
-        entry_id -> Integer,
+    message_references (message_reference, entry_id) {
+        message_reference -> Nullable<Integer>,
+        entry_id -> Nullable<Integer>,
         message_id -> Integer,
         note -> Nullable<Text>,
     }
 }
 
 diesel::table! {
+    moderation_bans (ban_id) {
+        ban_id -> Nullable<Integer>,
+        target_id -> Integer,
+        moderator_id -> Integer,
+        ban_reason -> Nullable<Text>,
+        ban_duration -> Nullable<Double>,
+    }
+}
+
+diesel::table! {
+    moderation_kicks (kick_id) {
+        kick_id -> Nullable<Integer>,
+        target_id -> Integer,
+        moderator_id -> Integer,
+        kick_reason -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
     moderation_messages (message_id) {
-        message_id -> Integer,
+        message_id -> Nullable<Integer>,
         message_link -> Text,
     }
 }
 
 diesel::table! {
     moderation_mutes (mute_id) {
-        mute_id -> Integer,
+        mute_id -> Nullable<Integer>,
         target_id -> Integer,
         moderator_id -> Integer,
         reason -> Nullable<Text>,
@@ -61,35 +62,33 @@ diesel::table! {
 
 diesel::table! {
     moderation_notes (note_id) {
-        note_id -> Integer,
+        note_id -> Nullable<Integer>,
         target_id -> Integer,
         moderator_id -> Integer,
-        note_text -> Text,
+        note -> Text,
         message_reference -> Nullable<Integer>,
     }
 }
 
 diesel::table! {
     moderation_reports (report_id) {
-        report_id -> Integer,
+        report_id -> Nullable<Integer>,
         target_id -> Integer,
         moderator_id -> Integer,
-        report_title -> Text,
-        report_description -> Text,
-        timestamp -> Integer,
+        report_title -> Nullable<Text>,
+        report_description -> Nullable<Text>,
+        timestamp -> Nullable<Double>,
     }
 }
 
-diesel::joinable!(core_associations -> core_users (user_id));
-diesel::joinable!(moderation_message_references -> moderation_messages (message_id));
-diesel::joinable!(moderation_notes -> moderation_message_references (message_reference));
+diesel::joinable!(message_references -> moderation_messages (message_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     core_associations,
     core_users,
+    message_references,
     moderation_bans,
     moderation_kicks,
-    moderation_message_references,
     moderation_messages,
     moderation_mutes,
     moderation_notes,

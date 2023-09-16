@@ -9,5 +9,5 @@ pub struct moderation_notes {
     pub target_id: i64,
     pub moderator_id: i64,
     pub note_text: String,
-    pub message_reference: String
+    pub message_reference: Option<i64>
 }
