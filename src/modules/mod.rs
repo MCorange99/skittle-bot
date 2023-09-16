@@ -2,8 +2,11 @@
 * available modules
 */
 
+#[cfg(feature = "core")]
 pub mod core;
+#[cfg(feature = "moderation")]
 pub mod moderation;
+#[cfg(feature = "music")]
 pub mod music;
 
 

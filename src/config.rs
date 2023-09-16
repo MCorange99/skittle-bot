@@ -4,7 +4,7 @@ use toml;
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct CoreConfig {
     pub prefix: String,
-    pub db_path: String,
+    pub database_url: String,
     pub write_logs_to_file: bool,
     pub debug: bool,
     pub secrets: CoreConfigSecrets,

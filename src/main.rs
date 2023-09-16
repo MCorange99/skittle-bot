@@ -1,23 +1,36 @@
+#![feature(trivial_bounds)]
+
+#![allow(
+    trivial_bounds
+)]
+
 mod config;
 mod handler;
 mod util;
 mod module_loader;
 mod modules;
+mod db;
 
 // use skittle_bot_core;
 
 
-use std::sync::Arc;
+use std::fs::File;
+use std::sync::Mutex;
+use std::{sync::Arc, path::Path};
 use std::collections::HashMap;
 use color_eyre::Result;
+use config::CoreConfig;
+use log::LevelFilter;
 use serenity::{prelude::{TypeMapKey, GatewayIntents}, Client};
 use tokio::{self, sync::RwLock};
 use crate::modules::SkittleModule;
+use chrono::Local;
+
 #[derive(Debug, Clone)]
 pub struct CoreData {
     config: config::CoreConfig,
     modules: HashMap<String, SkittleModule>,
-    available_modules: Vec<String>
+    available_modules: Vec<String>,
 }
 
 impl TypeMapKey for CoreData {
@@ -31,11 +44,12 @@ impl TypeMapKey for CoreData {
 
 #[tokio::main]
 async fn main() -> Result<()>{
-    dotenv::dotenv()?;
+    dotenvy::dotenv()?;
 
     let config = config::get_core_config()?;
-
     logger_init(&config);
+
+    let database = db::Database::connect(config.database_url.clone())?;
 
     let mut cdata = CoreData {
         config,
@@ -55,6 +69,7 @@ async fn main() -> Result<()>{
         Client::builder(&cdata.config.secrets.token, intents)
             .event_handler(handler::Handler::default())
             .type_map_insert::<CoreData>(Arc::new(RwLock::new(cdata)))
+            .type_map_insert::<db::Database>(Arc::new(Mutex::new(database)))
             .await
             .expect("Err creating client");
 
