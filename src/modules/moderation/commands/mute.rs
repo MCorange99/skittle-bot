@@ -1,8 +1,7 @@
 
-use std::time::Duration;
 
 use futures::{future::BoxFuture, FutureExt};
-use serenity::{prelude::Context, model::{prelude::{Message, Member}, Timestamp}};
+use serenity::{prelude::Context, model::prelude::Message};
 use color_eyre::Result;
 
 use crate::modules::{SkittleModuleCommand, SkittleModuleCommandBuilder};

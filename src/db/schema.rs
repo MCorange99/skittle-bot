@@ -65,6 +65,7 @@ diesel::table! {
         target_id -> Integer,
         moderator_id -> Integer,
         note_text -> Text,
+        message_reference -> Nullable<Integer>,
     }
 }
 
@@ -81,6 +82,7 @@ diesel::table! {
 
 diesel::joinable!(core_associations -> core_users (user_id));
 diesel::joinable!(moderation_message_references -> moderation_messages (message_id));
+diesel::joinable!(moderation_notes -> moderation_message_references (message_reference));
 
 diesel::allow_tables_to_appear_in_same_query!(
     core_associations,

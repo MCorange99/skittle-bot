@@ -46,47 +46,47 @@ pub fn exec(ctx: Context, msg: Message, _: Vec<String>) -> BoxFuture<'static, Re
     }.boxed()
 }
 
-async fn join(ctx: &Context, msg: &Message) -> Result<()> {
-    let guild = msg.guild(&ctx.cache).unwrap();
-    let guild_id = guild.id;
+// async fn join(ctx: &Context, msg: &Message) -> Result<()> {
+//     let guild = msg.guild(&ctx.cache).unwrap();
+//     let guild_id = guild.id;
 
-    let channel_id = guild
-        .voice_states.get(&msg.author.id)
-        .and_then(|voice_state| voice_state.channel_id);
+//     let channel_id = guild
+//         .voice_states.get(&msg.author.id)
+//         .and_then(|voice_state| voice_state.channel_id);
 
-    let connect_to = match channel_id {
-        Some(channel) => channel,
-        None => {
-            msg.reply_ping(&ctx.http, "Not in a voice channel").await?;
-            return Ok(());
-        }
-    };
+//     let connect_to = match channel_id {
+//         Some(channel) => channel,
+//         None => {
+//             msg.reply_ping(&ctx.http, "Not in a voice channel").await?;
+//             return Ok(());
+//         }
+//     };
 
-    let manager = songbird::get(ctx).await
-        .expect("Songbird Voice client placed in at initialisation.").clone();
+//     let manager = songbird::get(ctx).await
+//         .expect("Songbird Voice client placed in at initialisation.").clone();
 
-    let _handler = manager.join(guild_id, connect_to).await;
+//     let _handler = manager.join(guild_id, connect_to).await;
 
-    Ok(())
-}
+//     Ok(())
+// }
 
-async fn leave(ctx: &Context, msg: &Message) -> Result<()> {
-    let guild = msg.guild(&ctx.cache).unwrap();
-    let guild_id = guild.id;
+// async fn leave(ctx: &Context, msg: &Message) -> Result<()> {
+//     let guild = msg.guild(&ctx.cache).unwrap();
+//     let guild_id = guild.id;
 
-    let manager = songbird::get(ctx).await
-        .expect("Songbird Voice client placed in at initialisation.").clone();
-    let has_handler = manager.get(guild_id).is_some();
+//     let manager = songbird::get(ctx).await
+//         .expect("Songbird Voice client placed in at initialisation.").clone();
+//     let has_handler = manager.get(guild_id).is_some();
 
-    if has_handler {
-        if let Err(e) = manager.remove(guild_id).await {
-            log::error!("Failed {:?}", e);
-        }
+//     if has_handler {
+//         if let Err(e) = manager.remove(guild_id).await {
+//             log::error!("Failed {:?}", e);
+//         }
 
-        msg.reply_ping(&ctx.http, "Left the voice channel").await?;
-    } else {
-        msg.reply_ping(&ctx.http, "Not in a voice channel").await?;
-    }
+//         msg.reply_ping(&ctx.http, "Left the voice channel").await?;
+//     } else {
+//         msg.reply_ping(&ctx.http, "Not in a voice channel").await?;
+//     }
 
-    Ok(())
-}
+//     Ok(())
+// }
