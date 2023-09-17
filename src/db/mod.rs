@@ -7,14 +7,27 @@ use serenity::prelude::TypeMapKey;
 
 pub mod models;
 pub mod schema;
+pub mod actions;
+
+
+#[cfg(feature="sqlite")]
+pub type DbConnection = SqliteConnection;
+
+#[cfg(all(
+    not(feature="sqlite")
+))]
+compile_error!("Some type of database is required, enable on of these features:\n - sqlite");
+
 
 pub struct Database {
-    connection: SqliteConnection
+    connection: DbConnection
 }
 
 impl Database {
     pub fn connect(url: String) -> Result<Self> {
         log::info!("Connecting to database");
+
+        #[cfg(feature="sqlite")]
         let conn = SqliteConnection::establish(&url);
 
         if conn.is_err() {
