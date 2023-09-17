@@ -27,8 +27,14 @@ impl Database {
     pub fn connect(url: String) -> Result<Self> {
         log::info!("Connecting to database");
 
-        #[cfg(feature="sqlite")]
-        let conn = SqliteConnection::establish(&url);
+
+        let conn = {
+            #[cfg(feature="sqlite")]
+            {
+                log::info!("Using sqlite3 database type");
+                SqliteConnection::establish(&url)
+            }
+        };
 
         if conn.is_err() {
             log::error!("Unable to connect to database at {}", url);
