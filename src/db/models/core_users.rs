@@ -7,3 +7,7 @@ use diesel::prelude::*;
 pub struct core_users {
     pub user_id: i64,
 }
+
+// impl core_users {
+//     pub fn create(&self, conn)
+// }

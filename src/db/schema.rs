@@ -15,15 +15,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    message_references (message_reference, entry_id) {
-        message_reference -> Nullable<Integer>,
-        entry_id -> Nullable<Integer>,
-        message_id -> Integer,
-        note -> Nullable<Text>,
-    }
-}
-
-diesel::table! {
     moderation_bans (ban_id) {
         ban_id -> Nullable<Integer>,
         target_id -> Integer,
@@ -39,6 +30,15 @@ diesel::table! {
         target_id -> Integer,
         moderator_id -> Integer,
         kick_reason -> Nullable<Text>,
+    }
+}
+
+diesel::table! {
+    moderation_message_references (message_reference, entry_id) {
+        message_reference -> Nullable<Integer>,
+        entry_id -> Nullable<Integer>,
+        message_id -> Integer,
+        note -> Nullable<Text>,
     }
 }
 
@@ -81,14 +81,14 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(message_references -> moderation_messages (message_id));
+diesel::joinable!(moderation_message_references -> moderation_messages (message_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     core_associations,
     core_users,
-    message_references,
     moderation_bans,
     moderation_kicks,
+    moderation_message_references,
     moderation_messages,
     moderation_mutes,
     moderation_notes,

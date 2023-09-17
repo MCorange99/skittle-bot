@@ -1,7 +1,5 @@
 # Skittle bot
 
-
-
 ## setup
 
 Copy the folder `/templates/config` to the root of the project.

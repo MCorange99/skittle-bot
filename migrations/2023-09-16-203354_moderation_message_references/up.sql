@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE IF NOT EXISTS "message_references" (
+CREATE TABLE IF NOT EXISTS "moderation_message_references" (
 	"message_reference"	INTEGER,
 	"entry_id"	INTEGER,
 	"message_id"	INTEGER NOT NULL,
