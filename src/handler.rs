@@ -1,6 +1,7 @@
 
 use serenity::{async_trait, prelude::{EventHandler, Context}, model::prelude::{Message, Ready}};
-use crate::CoreData;
+use crate::{CoreData, modules::{types::EventType, SkittleModule}};
+use color_eyre::Result;
 
 #[derive(Debug, Default)]
 pub struct Handler;
@@ -46,7 +47,7 @@ impl EventHandler for Handler {
 
                         
                         log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
-                        if let Err(e) = (fun.exec)(ctx, msg, argv).await {
+                        if let Err(e) = (fun.exec)(ctx.clone(), msg.clone(), argv).await {
                             log::warn!("Failed to execute command: {e}");
                         };
                         break 'outer;
@@ -54,7 +55,8 @@ impl EventHandler for Handler {
                 }
             }
         }
-
+        // todo: handle this result
+        send_event(&ctx, EventType::message(msg)).await.unwrap();
 
     }
 
@@ -67,4 +69,28 @@ impl EventHandler for Handler {
     async fn ready(&self, _: Context, ready: Ready) {
         log::info!("{} is connected!", ready.user.name);
     }
+
+}
+
+
+
+pub async fn send_event(ctx: &Context, mut event: EventType) -> Result<()> {
+    let cd_lock = {
+        let ctx2 = ctx.clone();
+        let data_read = ctx2.data.read().await;
+        data_read.get::<CoreData>().unwrap().clone()
+    };
+
+    let cdata = {cd_lock.read().await.clone()};
+    for (_, module) in cdata.modules.clone() {
+        let mut module: SkittleModule = module;
+        match module.event_handler() {
+            Some(eh)=> {
+                eh(ctx.clone(), event.clone()).await?;
+            }
+            None => ()
+        }
+    }
+
+    Ok(())
 }

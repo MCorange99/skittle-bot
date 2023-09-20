@@ -6,7 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-default=["core", "moderation", "sqlite"]
+default=[
+    "core", 
+    # "moderation",
+    "sqlite"
+]
 
 core=[]
 moderation=[]
@@ -25,10 +29,11 @@ serde = { version = "1.0.171", features = ["derive"] }
 shellwords = "1.1.0"
 tokio = { version = "1.29.1", features = ["full"] }
 toml = "0.8.0"
-diesel = { version = "2.1.1", features = [] }
+diesel = { version = "2.1.1", features = ["r2d2", "bigdecimal"] }
 dotenvy = "0.15"
 songbird = {version = "0.3.2", optional = true}
 chrono = "0.4.31"
+clap = { version = "4.4.4", features = ["derive"] }
 
 [dependencies.serenity]
 version = "0.11.6"

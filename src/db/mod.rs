@@ -1,5 +1,6 @@
 use std::sync::{Mutex, Arc};
 
+use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::sqlite::SqliteConnection;
 use diesel::prelude::*;
 use color_eyre::Result;
@@ -20,7 +21,7 @@ compile_error!("Some type of database is required, enable on of these features:\
 
 
 pub struct Database {
-    connection: DbConnection
+    pub connection_pool: Pool<ConnectionManager<DbConnection>>
 }
 
 impl Database {
@@ -28,23 +29,28 @@ impl Database {
         log::info!("Connecting to database");
 
 
-        let conn = {
+        let manager = {
             #[cfg(feature="sqlite")]
             {
                 log::info!("Using sqlite3 database type");
-                SqliteConnection::establish(&url)
+                ConnectionManager::<DbConnection>::new(&url)
             }
         };
 
-        if conn.is_err() {
-            log::error!("Unable to connect to database at {}", url);
+
+        let pool = Pool::builder()
+            .test_on_check_out(true)
+            .build(manager);
+
+        if pool.is_err() {
+            log::error!("Unable to connect to database at {}", &url);
         } else {
-            log::info!("Connected to database at {}", url);
+            log::info!("Connected to database at {}", &url);
         }
 
         Ok(
             Self {
-                connection: conn?
+                connection_pool: pool?
             }
         )
     }
