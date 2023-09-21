@@ -10,6 +10,7 @@ mod util;
 mod module_loader;
 mod modules;
 mod db;
+mod macros;
 
 // use skittle_bot_core;
 

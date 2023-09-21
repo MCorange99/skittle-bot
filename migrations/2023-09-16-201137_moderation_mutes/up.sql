@@ -1,8 +1,8 @@
 -- Your SQL goes here
 CREATE TABLE IF NOT EXISTS "moderation_mutes" (
-	"mute_id"	INTEGER,
-	"target_id"	INTEGER NOT NULL,
-	"moderator_id"	INTEGER NOT NULL,
+	"mute_id"	BIGINT,
+	"target_id"	BIGINT NOT NULL,
+	"moderator_id"	BIGINT NOT NULL,
 	"reason"	TEXT,
 	"timestamp"	NUMERIC NOT NULL,
 	"duration"	NUMERIC,

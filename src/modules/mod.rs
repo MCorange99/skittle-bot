@@ -1,36 +1,31 @@
 /*
 * available modules
 */
+pub mod types;
 
 #[cfg(feature = "core")]
 pub mod core;
+
 #[cfg(feature = "moderation")]
 pub mod moderation;
 #[cfg(feature = "music")]
 pub mod music;
 
-
-
-/*
-* Types
-*/
-
 use std::collections::HashMap;
-use color_eyre::Result;
-use futures::future::BoxFuture;
-use serenity::{prelude::Context, model::{prelude::Message, Permissions}};
+use serenity::model::Permissions;
 
+use types::SkittleModuleCommandFn;
 
-
-pub type SkittleModuleCommandExec = fn(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static, Result<()>>;
+use self::types::SkittleModuleEventManagerFn;
 
 #[derive(Debug, Clone)]
 pub struct SkittleModuleCommand {
-    pub exec: SkittleModuleCommandExec,
+    pub exec: SkittleModuleCommandFn,
+    pub description: String,
     pub help: Vec<(String, String)>,
     pub dev_only: bool,
     pub required_user_permissions: Vec<Permissions>,
-    pub required_bot_permissions: Vec<Permissions>
+    pub required_bot_permissions: Vec<Permissions>,
 }
 
 pub struct SkittleModuleCommandBuilder {
@@ -38,14 +33,15 @@ pub struct SkittleModuleCommandBuilder {
 }
 
 impl SkittleModuleCommandBuilder {
-    pub fn new(exec: SkittleModuleCommandExec) -> Self {
+    pub fn new(exec: SkittleModuleCommandFn) -> Self {
         Self {
             inner: SkittleModuleCommand { 
                 exec,
                 help: Vec::new(), 
                 dev_only: false, 
                 required_user_permissions: Vec::new(), 
-                required_bot_permissions: Vec::new()
+                required_bot_permissions: Vec::new(),
+                description: String::new(),
             }
         }
     }
@@ -67,6 +63,11 @@ impl SkittleModuleCommandBuilder {
         self
     }
 
+    pub fn description(&mut self, desc: &str) -> &mut Self {
+        self.inner.description = desc.to_string();
+        self
+    }
+
     pub fn build(&mut self) -> SkittleModuleCommand {
         self.inner.clone()
     }
@@ -79,8 +80,8 @@ pub struct SkittleModule {
     description: Option<String>,
     version: Option<String>,
     author: Option<String>,
-    commands: HashMap<String, SkittleModuleCommand>
-    // TODO: add events
+    commands: HashMap<String, SkittleModuleCommand>,
+    event_handler: Option<SkittleModuleEventManagerFn>
 }
 
 #[allow(dead_code)]
@@ -92,9 +93,13 @@ impl SkittleModule {
             version: None,
             author: None,
             commands: HashMap::new(),
+            event_handler: None,
         }
     }
 
+    /*
+        Setters
+     */
     pub fn set_description(&mut self, value: &str){
         self.description = Some(value.to_string());
     }
@@ -106,6 +111,18 @@ impl SkittleModule {
     pub fn set_author(&mut self, value: &str){
         self.author = Some(value.to_string());
     }
+
+    pub fn register_command(&mut self, name: &str, comm: SkittleModuleCommand) {
+        self.commands.insert(name.to_string(), comm);
+    }
+
+    pub fn register_event_handler(&mut self, handler: SkittleModuleEventManagerFn) {
+        self.event_handler = Some(handler)
+    }
+
+    /*
+        Getters
+     */
 
     pub fn name(&mut self) -> String {
         self.name.clone()
@@ -127,7 +144,7 @@ impl SkittleModule {
         self.commands.clone()
     }
 
-    pub fn register_command(&mut self, name: &str, comm: SkittleModuleCommand) {
-        self.commands.insert(name.to_string(), comm);
+    pub fn event_handler(&mut self) -> Option<SkittleModuleEventManagerFn> {
+        self.event_handler
     }
 }

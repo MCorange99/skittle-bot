@@ -3,7 +3,7 @@ use futures::{future::BoxFuture, FutureExt};
 use serenity::{prelude::Context, model::{prelude::Message, Timestamp}};
 use color_eyre::Result;
 
-use crate::{CoreData, modules::{SkittleModuleCommand, SkittleModuleCommandBuilder}};
+use crate::{CoreData, modules::{SkittleModuleCommand, SkittleModuleCommandBuilder}, read_type_map, get_type_map_data_ro_cloned};
 
 
 
@@ -24,14 +24,7 @@ pub fn register() -> SkittleModuleCommand {
 pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static, Result<()>>  {
     async move {
         {
-            let cd_lock = {
-                let data_read = ctx.data.read().await;
-                data_read.get::<CoreData>().unwrap().clone()
-            };
-            
-            let cd_ro = {
-                cd_lock.read().await.clone()
-            };
+            let cd_ro = get_type_map_data_ro_cloned!(CoreData, ctx);
 
             if args.len() < 2 {
                 msg.reply_ping(ctx, "No subcommand provided").await?;
@@ -43,7 +36,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
                 "list" => {
                     let mut module_data = vec![];
 
-                    for (k, v) in &cd_lock.read().await.modules {
+                    for (k, v) in &get_type_map_data_ro_cloned!(CoreData, ctx).modules {
                         let mut v = v.clone();
                         module_data.push((format!("**{}**", k.clone().to_uppercase()), format!("**Description**: {}\n**Version**: {}\n**Author**: {}\n**Commands**: {}", v.description(), v.version(), v.author(), v.commands().len()),false))
                     }
@@ -109,10 +102,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
             
         }
 
-        let cd_lock = {
-            let data_read = ctx.data.read().await;
-            data_read.get::<CoreData>().unwrap().clone()
-        };
+        let cd_lock = read_type_map!(CoreData, ctx);
 
         let mut cd = cd_lock.write().await;
 
