@@ -36,15 +36,15 @@ pub struct Database {
     pub bans: Vec<Ban>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Role {
-    Unverified,
     Member,
     Staff,
     Moderator,
     Administator,
     Developer,
     Owner,
+    BotOwner,
 }
 
 /*
@@ -60,7 +60,7 @@ pub struct UserInternalId(usize);
 #[derive(Serialize, Deserialize)]
 pub struct User {
     pub discord_id: u64,
-    pub role: Role,
+    pub roles: HashSet<Role>,
     pub is_bot_owner: bool,
 }
 
