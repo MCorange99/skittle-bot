@@ -44,3 +44,4 @@ pub fn get_time_len(duration: String) -> Result<Timestamp> {
 
     Err(color_eyre::eyre::eyre!("No time detected"))
 }
+

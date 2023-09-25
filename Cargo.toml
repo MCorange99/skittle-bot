@@ -1,5 +1,5 @@
 [package]
-name = "skittle-bot-core"
+name = "skittle-bot"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,15 +8,15 @@ edition = "2021"
 [features]
 default=[
     "core", 
-    # "moderation",
-    "sqlite"
+    "moderation",
+    "db_toml"
 ]
 
 core=[]
 moderation=[]
 music=["songbird"]
-
-sqlite=["diesel/sqlite"]
+db_bin=["bincode"]
+db_toml=[]
 
 
 
@@ -29,16 +29,15 @@ serde = { version = "1.0.171", features = ["derive"] }
 shellwords = "1.1.0"
 tokio = { version = "1.29.1", features = ["full"] }
 toml = "0.8.0"
-diesel = { version = "2.1.1", features = ["r2d2", "bigdecimal"] }
 dotenvy = "0.15"
 songbird = {version = "0.3.2", optional = true}
 chrono = "0.4.31"
 clap = { version = "4.4.4", features = ["derive"] }
+bincode = { version = "1.3.3", features = ["i128"], optional = true }
+cfg-if = "1.0.0"
+uuid = { version = "1.4.1", features = ["v4"] }
 
 [dependencies.serenity]
 version = "0.11.6"
 default-features = false
 features = ["client", "gateway", "rustls_backend", "model", "cache"]
-
-[[bin]]
-name = "custom"

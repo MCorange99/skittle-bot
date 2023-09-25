@@ -3,9 +3,8 @@ use clap::Parser;
 use futures::{future::BoxFuture, FutureExt};
 use serenity::{prelude::Context, model::prelude::{Message, UserId, Member}};
 use color_eyre::Result;
-use diesel::{RunQueryDsl, QueryDsl, SelectableHelper};
 
-use crate::{modules::{SkittleModuleCommand, SkittleModuleCommandBuilder}, try_parse_args, internal_error, get_guild_members, with_db, db::models};
+use crate::{modules::{SkittleModuleCommand, SkittleModuleCommandBuilder}, try_parse_args, internal_error, get_guild_members, db::{CoreUser, UserInternalId}};
 
 pub fn register() -> SkittleModuleCommand {
     SkittleModuleCommandBuilder::new(exec)
@@ -48,27 +47,56 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
 
             ctx.http.get_guilds(None, None).await?;
 
-            let members = get_guild_members!(ctx, guild);
-            let info = ctx.http.get_member(gid.0, members[0].user.id.0).await;
+            let current_members = get_guild_members!(ctx, guild);
+            // let info = ctx.http.get_member(gid.0, members[0].user.id.0).await;
 
-            let db_users = members.into_iter().map(|m|{
-                models::core_users::new_core_users{
-                    user_id: m.user.id.0 as i64,
+
+            let mut db = get_db!(ctx);
+            let db_cache = db.get_cached_data();
+
+
+            let db_member_ids = db_cache.users.iter().map(|(_, v)| v.discord_id).collect::<Vec<u64>>();
+
+            let mut count = 0;
+
+            for member in current_members {
+                if !db_member_ids.contains(&member.user.id.0) {
+                    count += 1;
+                    let id = UserInternalId::new();
+                    log::debug!("added, {} {:?}", member.user.id.0, id);
+                    CoreUser::new(member.user.id.0).save(id, &mut db).await?;
                 }
-            }).collect::<Vec<models::core_users::new_core_users>>();
+            }
 
-            let count = 
-            with_db!(ctx, |conn| {
-                use crate::db::schema::core_users::dsl;
-                dsl::core_users.load::<models::core_users::core_users>(conn)
+            db.save_cached_data().await?;
 
-            });
+            dbg!(db.get_cached_data());
 
-            msg.reply_ping(&ctx.http, "");
+            // let count = 
+            // with_db!(ctx, |conn| {
+            //     use crate::db::schema::core_users::dsl;
+            //     dsl::core_users.load::<models::core_users::core_users>(conn)
 
+            // });
+
+            msg.reply_ping(&ctx.http, format!("```md\n# Results\nAdded members: {}\n```", count)).await?;
+            
             // log::debug!("{:?}",info);
+
+        } else {
+            let text = concat!(
+                "```\n",
+                "error: No command provided\n\n",
+                "Usage: database [OPTIONS]\n\n",
+                "For more information, try '--help'.\n",
+                "```"
+            );
+        
+            msg.reply_ping(&ctx.http, text).await?;
         }
+        
 
         Ok(())
     }.boxed()
+    
 }

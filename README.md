@@ -8,3 +8,7 @@ Edit the values in core.toml with the secrets
 `cargo run`
 
 Profit!
+
+## Ideas
+
+currency: SPOONS

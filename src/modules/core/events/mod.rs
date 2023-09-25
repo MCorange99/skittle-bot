@@ -2,7 +2,7 @@ mod member_add;
 
 use futures::{future::BoxFuture, FutureExt};
 use serenity::prelude::Context;
-use crate::modules::types::{EventType, SkittleModuleEventManagerFn};
+use crate::modules::types::EventType;
 use color_eyre::Result;
 
 pub fn handler(ctx: Context, event: EventType) -> BoxFuture<'static, Result<()>> {

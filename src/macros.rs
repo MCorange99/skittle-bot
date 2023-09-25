@@ -24,39 +24,6 @@ macro_rules! get_type_map_data_ro_cloned {
 }
 
 
-#[macro_export]
-macro_rules! with_db {
-    ($ctx:expr, $body:expr) => {
-        {   
-            use crate::read_type_map;
-            use crate::db::Database;
-
-            let db_lock = read_type_map!(Database, $ctx);
-            let db_lock = db_lock.lock();
-            let db = match db_lock {
-                Ok(db) => db,
-                Err(_) => {
-                    log::error!("Unable to access database lock");
-                    return Ok(());
-                }
-            };
-
-            let mut conn = match db.connection_pool.get() {
-                Ok(p) => p,
-                Err(_) => {
-                    log::error!("Unable to access db connection from pool");
-                    return Ok(());
-                }
-            };
-
-            match $body(&mut conn) {
-                Ok(r) => Ok(r),
-                Err(e) => Err(e.into())
-            }
-        }
-    };
-}
-
 
 #[macro_export]
 macro_rules! try_parse_args {
@@ -109,6 +76,16 @@ macro_rules! get_guild_members {
             }
             member_list
         }
+    };
+}
+
+#[macro_export]
+macro_rules! get_db {
+    ($ctx:expr) => {
+        {
+            use crate::db::Database;
+            read_type_map!(Database, $ctx).write().await
+        }.clone()
     };
 }
             

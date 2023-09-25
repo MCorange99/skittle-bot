@@ -48,7 +48,9 @@ impl EventHandler for Handler {
                         
                         log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
                         if let Err(e) = (fun.exec)(ctx.clone(), msg.clone(), argv).await {
-                            log::warn!("Failed to execute command: {e}");
+                            let e: color_eyre::eyre::Error = e;
+                            
+                            log::warn!("Failed to execute command {e}");
                         };
                         break 'outer;
                     }
@@ -74,7 +76,7 @@ impl EventHandler for Handler {
 
 
 
-pub async fn send_event(ctx: &Context, mut event: EventType) -> Result<()> {
+pub async fn send_event(ctx: &Context, event: EventType) -> Result<()> {
     let cd_lock = {
         let ctx2 = ctx.clone();
         let data_read = ctx2.data.read().await;
