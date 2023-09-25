@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// A kick is when a user is removed from the server.
 /// This struct purely exists to log the kick.

@@ -1,15 +1,23 @@
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
-use serde::{Serialize, Deserialize};
 
-use self::{ban::Ban, kick::Kick, mute::Mute, report::{Report, ReportID}, message::{Message, MessageId, MessageRefId, MessageReference}, note::{NoteId, UserNote}, user::{UserInternalId, User}};
+use self::{
+    ban::Ban,
+    kick::Kick,
+    message::{Message, MessageId, MessageRefId, MessageReference},
+    mute::Mute,
+    note::{NoteId, UserNote},
+    report::{Report, ReportID},
+    user::{User, UserInternalId},
+};
 
-mod user;
-mod note;
-mod message;
-mod report;
-mod mute;
-mod kick;
 mod ban;
+mod kick;
+mod message;
+mod mute;
+mod note;
+mod report;
+mod user;
 
 /*
 Internal structs are used to clarify the relationship between the structs
