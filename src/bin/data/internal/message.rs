@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct MessageId(usize);
 /// Message contains a reference to a specific message.
 #[derive(Serialize, Deserialize)]
@@ -9,7 +9,7 @@ pub struct Message {
     pub message_link: String,
 }
 
-#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct MessageRefId(MessageId);
 /// Message reference contains a collection of messages that may be relevant to something.
 #[derive(Serialize, Deserialize)]
