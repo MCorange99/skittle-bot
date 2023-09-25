@@ -2,10 +2,10 @@ use serde::{Deserialize, Serialize};
 // WARNING: Ugly :(
 use crate::data::internal::MessageRefId;
 
-#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct NoteId(usize);
 /// UserNote is a simple text note that can be added to a user.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UserNote {
     pub user_id: usize,
     pub modeartor_id: usize,
