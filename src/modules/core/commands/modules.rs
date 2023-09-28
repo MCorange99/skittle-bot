@@ -38,7 +38,11 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
 
                     for (k, v) in &get_type_map_data_ro_cloned!(CoreData, ctx).modules {
                         let mut v = v.clone();
-                        module_data.push((format!("**{}**", k.clone().to_uppercase()), format!("**Description**: {}\n**Version**: {}\n**Author**: {}\n**Commands**: {}", v.description(), v.version(), v.author(), v.commands().len()),false))
+                        module_data.push((
+                            format!("**{}**", k.clone().to_uppercase()),
+                            format!("**Description**: {}\n**Version**: {}\n**Author**: {}\n**Commands**: {}", v.description(), v.version(), v.author(), v.commands().len()),
+                            false
+                        ));
                     }
 
                     msg
@@ -73,8 +77,8 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
 
                             let mut modl_comm_info = Vec::new();
 
-                            for (k, _) in &modl.commands {
-                                modl_comm_info.push(format!("{k}"))
+                            for k in modl.commands.keys() {
+                                modl_comm_info.push(k.to_string());
                             }
 
 
@@ -83,7 +87,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
                                 .send_message(&ctx.http, |m| {
                                     m
                                     .embed(|e| {
-                                        e.title(format!("Module {}", s))
+                                        e.title(format!("Module {s}"))
                                             .field("Commands", modl_comm_info.join("\n"), false)
                                             .field("Description", modl.description(), false)
                                             .field("Version", modl.version(), false)
@@ -118,23 +122,23 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
                             cd.config.modules.disabled_modules.remove(c);
                         }
                     }
-                    crate::module_loader::load(&mut cd)?;
+                    crate::module_loader::load(&mut cd);
                     msg.reply_ping(ctx, format!("Module {} enabled", args[1])).await?;
                 } else {
                     msg.reply_ping(ctx, format!("Module {} is already enabled", args[1])).await?;
                 }
-                crate::config::set_core_config(cd.config.clone())?;
+                crate::config::set_core_config(&cd.config)?;
             }
             "disable" | "off" | "0" => {
                 
-                if !cd.config.modules.disabled_modules.contains(&args[1]) {
+                if cd.config.modules.disabled_modules.contains(&args[1]) {
+                    msg.reply_ping(ctx, format!("Module {} is already disabled", args[1])).await?;
+                } else {
                     cd.config.modules.disabled_modules.push(args[1].clone());
                     cd.modules.remove(&args[1]);
                     msg.reply_ping(ctx, format!("Module {} disabled", args[1])).await?;
-                } else {
-                    msg.reply_ping(ctx, format!("Module {} is already disabled", args[1])).await?;
                 }
-                crate::config::set_core_config(cd.config.clone())?;
+                crate::config::set_core_config(&cd.config)?;
             }
             s => {
                 msg.reply_ping(ctx, format!("Unknown subcommand {s}")).await?;
@@ -142,10 +146,6 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
             }
         }
 
-            
-
-
-        // msg.reply_mention(ctx, "Pong!").await?;
         Ok(())
     }.boxed()
 }

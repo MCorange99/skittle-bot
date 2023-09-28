@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 
-#[allow(unused_imports)]
 use crate::{modules, CoreData};
-use color_eyre::Result;
 
 use crate::modules::SkittleModule;
 
 #[allow(unused_mut, unused_variables)]
-pub fn load(cd: &mut CoreData) -> Result<()> {
+pub fn load(cd: &mut CoreData){
     log::info!("Loading modules");
     let mut commands: HashMap<String, String> = HashMap::new();
 
@@ -20,7 +18,6 @@ pub fn load(cd: &mut CoreData) -> Result<()> {
     load_module(cd, &mut commands, modules::music::register());
 
 
-    Ok(())
 }
 
 #[allow(dead_code)]
@@ -42,7 +39,7 @@ fn load_module(cd: &mut CoreData, commands: &mut HashMap<String, String>, mut mo
 
         log::info!("Registered command: {}::{}", module.name(), comm.0);
         commands.insert(comm.0, module.name());
-        break;
+    
     }
     cd.modules.insert(module.name(), module);
 }

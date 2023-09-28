@@ -9,7 +9,7 @@ pub fn missing_roles(roles: Vec<UserRole>) -> String {
     ).to_string();
 
     for role in roles {
-        s.push_str(&format!(" - {:?}\n", role))
+        s.push_str(&format!(" - {role:?}\n"));
     }
     s.push_str("\nIf you think this is an error contact @mcorange\n```");
     s
@@ -27,7 +27,7 @@ pub fn failed_parsing(command: &String) -> String {
 
 }
 
-pub const NOT_DEVELOPER: &'static str = concat!(
+pub const NOT_DEVELOPER: &str = concat!(
     "```md\n",
     "# Error\n",
     "You are not a developer\n\n",

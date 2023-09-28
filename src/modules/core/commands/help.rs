@@ -41,7 +41,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
                 let mut module_helps = String::new();
                 
                 for comm in modl.commands {
-                    module_helps.push_str(format!("{}\n", comm.0).as_str())
+                    module_helps.push_str(format!("{}\n", comm.0).as_str());
                 }
                 
                 helps.push((modl_name.to_uppercase(), module_helps, false));

@@ -8,6 +8,8 @@ use color_eyre::Result;
 pub fn handler(ctx: Context, event: EventType) -> BoxFuture<'static, Result<()>> {
 
     async move {
+
+        #[allow(clippy::single_match)] //? Temporary untill we have another arm in this match so clippy doesnt complain
         match event {
             EventType::guild_member_addition(e) => member_add::member_add(ctx, e).await?,
             _ => ()

@@ -4,7 +4,9 @@ use serenity::{prelude::Context, model::prelude::Message};
 use color_eyre::Result;
 use std::fmt::Write;
 use clap::{Parser, arg};
+use diesel::*;
 
+use crate::db::{schema::core_users::dsl::*, models::CoreUsers};
 use crate::{modules::{SkittleModuleCommand, SkittleModuleCommandBuilder, Stdout}, db::models::UserRole, util::parse_user_id};
 
 pub fn register() -> SkittleModuleCommand {
@@ -30,13 +32,13 @@ struct Args {
     remove: Vec<String>
 }
 
-pub fn exec(ctx: Context, msg: Message, argv: Vec<String>) -> BoxFuture<'static, Result<()>>  {
+pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static, Result<()>>  {
     async move {
         let mut stdout = Stdout::new(&msg, &ctx);
-        let args = try_parse_args!(Args, msg, ctx, argv);
+        let args = try_parse_args!(Args, msg, ctx, args);
 
 
-        let uid = match parse_user_id(args.user){
+        let uid = match parse_user_id(&args.user){
             Ok(i) => i,
             Err(e) => {
                 writeln!(stdout, "{e}")?;
@@ -46,11 +48,8 @@ pub fn exec(ctx: Context, msg: Message, argv: Vec<String>) -> BoxFuture<'static,
         };
 
 
-        use crate::db::models::CoreUsers;
         let user: CoreUsers = {
             let mut conn = get_db!(ctx);
-            use crate::db::schema::core_users::dsl::core_users;
-            use diesel::*;
 
             core_users
                 .select(CoreUsers::as_select())
@@ -80,9 +79,7 @@ pub fn exec(ctx: Context, msg: Message, argv: Vec<String>) -> BoxFuture<'static,
         
         {
             let mut conn = get_db!(ctx);
-            use crate::db::schema::core_users::dsl::*;
-            use diesel::*;
-
+            
             diesel::update(core_users.filter(user_id.eq(uid)))
                 .set(user_role.eq(uroles))
                 .execute(&mut conn)?;

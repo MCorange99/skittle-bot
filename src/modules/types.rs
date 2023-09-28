@@ -20,6 +20,7 @@ pub type SkittleModuleEventManagerFn = fn(ctx: Context, event: EventType)       
 #[derive(Debug, Clone)]
 #[allow(non_camel_case_types)]
 #[allow(dead_code)]
+#[allow(clippy::large_enum_variant)]
 pub enum EventType {
     application_command_permissions_update(CommandPermission),
     auto_moderation_rule_create(Rule),

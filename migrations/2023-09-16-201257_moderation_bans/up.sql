@@ -1,7 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE IF NOT EXISTS "moderation_bans" (
-	"ban_id"	BIGINT NOT NULL,
-	"target_id"	BIGINT NOT NULL,
+	"ban_id"		BIGINT NOT NULL,
+	"target_id"		BIGINT NOT NULL,
 	"moderator_id"	BIGINT NOT NULL,
 	"ban_reason"	TEXT,
 	"ban_duration"	BIGINT,

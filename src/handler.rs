@@ -2,6 +2,9 @@
 use serenity::{async_trait, prelude::{EventHandler, Context}, model::prelude::{Message, Ready, Member}};
 use crate::{CoreData, modules::{types::EventType, SkittleModule}, db::models::UserRole};
 use color_eyre::Result;
+use crate::db::models::CoreUsers;
+use crate::db::schema::core_users::dsl::core_users;
+use diesel::*;
 
 #[derive(Debug, Default)]
 pub struct Handler;
@@ -66,26 +69,23 @@ impl EventHandler for Handler {
 
                             if !is_dev {
 
-                                use crate::db::models::CoreUsers;
                                 let user: CoreUsers = {
-                                let mut conn = get_db!(ctx);
-                                use crate::db::schema::core_users::dsl::core_users;
-                                use diesel::*;
-                        
-                                match {
-                                    core_users
-                                        .select(CoreUsers::as_select())
-                                        .find(msg.author.id.0 as i64)
-                                        .first(&mut conn)
-                                } {
-                                    Ok(r) => r,
-                                    Err(e) => {
-                                        let _ = msg.reply_ping(&ctx.http, crate::locale::en_US::INTERNAL_ERROR).await;
-                                        log::error!("Internal Error: {:?}", e);
-                                        break 'outer;
-                                    }
+                                    let mut conn = get_db!(ctx);
+                            
+                                    match {
+                                        core_users
+                                            .select(CoreUsers::as_select())
+                                            .find(msg.author.id.0 as i64)
+                                            .first(&mut conn)
+                                    } {
+                                        Ok(r) => r,
+                                        Err(e) => {
+                                            let _ = msg.reply_ping(&ctx.http, crate::locale::en_US::INTERNAL_ERROR).await;
+                                            log::error!("Internal Error: {:?}", e);
+                                            break 'outer;
+                                        }
 
-                                }
+                                    }
                                 };
 
                                 
@@ -103,7 +103,7 @@ impl EventHandler for Handler {
                                     break 'outer;
                                 }
                             } else if !command.required_user_roles.is_empty() {
-                                log::info!("Developer {id} bypassed required roles: {perms:?}", id=msg.author.id.0, perms=command.required_user_roles)
+                                log::info!("Developer {id} bypassed required roles: {perms:?}", id=msg.author.id.0, perms=command.required_user_roles);
                             }
 
 
@@ -152,11 +152,8 @@ pub async fn send_event(ctx: &Context, event: EventType) -> Result<()> {
     let cdata = {cd_lock.read().await.clone()};
     for (_, module) in cdata.modules.clone() {
         let mut module: SkittleModule = module;
-        match module.event_handler() {
-            Some(eh)=> {
-                eh(ctx.clone(), event.clone()).await?;
-            }
-            None => ()
+        if let Some(eh) = module.event_handler() {
+            eh(ctx.clone(), event.clone()).await?;
         }
     }
 

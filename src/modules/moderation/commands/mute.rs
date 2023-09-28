@@ -39,7 +39,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
         }
 
         let user = &msg.mentions[0];
-        let len = crate::util::get_time_len(args[2].clone())?;
+        let len = crate::util::get_time_len(&args[2])?;
 
         // No reason
         if args.len() < 4 {

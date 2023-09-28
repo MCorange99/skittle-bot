@@ -23,13 +23,12 @@ macro_rules! get_type_map_data_ro_cloned {
     };
 }
 
-
+#[allow(clippy::module_name_repetitions)]
 #[macro_export]
 macro_rules! get_db {
     ($ctx:expr) => {
         {   
-            use crate::read_type_map;
-            use crate::db::Database;
+            use $crate::db::Database;
             #[allow(unused_imports)]
             use color_eyre::Result;
 

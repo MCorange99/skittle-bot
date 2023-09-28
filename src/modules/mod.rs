@@ -120,7 +120,7 @@ impl SkittleModule {
     }
 
     pub fn register_event_handler(&mut self, handler: SkittleModuleEventManagerFn) {
-        self.event_handler = Some(handler)
+        self.event_handler = Some(handler);
     }
 
     /*

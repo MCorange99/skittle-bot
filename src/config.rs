@@ -1,5 +1,5 @@
+#![allow(clippy::module_name_repetitions)]
 use color_eyre::Result;
-use toml;
 
 #[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct CoreConfig {
@@ -43,7 +43,7 @@ pub fn get_core_config() -> Result<CoreConfig> {
     let cfg: CoreConfig = toml::from_str(std::fs::read_to_string("./config/core.toml")?.as_str())?;
     Ok(cfg)
 }
-#[allow(dead_code)]
-pub fn set_core_config(cfg: CoreConfig) -> Result<()> {
+
+pub fn set_core_config(cfg: &CoreConfig) -> Result<()> {
     Ok(std::fs::write("./config/core.toml", toml::to_string_pretty(&cfg)?)?)
 }

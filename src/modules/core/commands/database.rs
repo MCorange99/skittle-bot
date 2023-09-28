@@ -6,9 +6,8 @@ use serenity::{
     model::prelude::{Member, Message, UserId},
     prelude::Context,
 };
-
 use crate::{
-    db::models,
+    db::{models,schema::core_users::dsl::*},
     modules::{SkittleModuleCommand, SkittleModuleCommandBuilder},
 };
 
@@ -39,11 +38,8 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
         // msg.reply_ping(ctx, "Pong!").await?;
 
         if args.scan_for_new_users {
-            let gid = match msg.guild_id {
-                Some(gid) => gid,
-                None => {
-                    internal_error!(msg, ctx, "Could not get guild id");
-                }
+            let Some(gid) = msg.guild_id else {
+                internal_error!(msg, ctx, "Could not get guild id");
             };
 
             let guild = ctx.http.get_guild(gid.0).await?;
@@ -61,8 +57,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
                 .collect::<Vec<models::CoreUsers>>(); 
             let db_users = {
                 let mut conn = get_db!(ctx);
-                use crate::db::schema::core_users::dsl::*;
-                // use crate::db::schema::core_users::dsl::core_users;
+                
                 core_users
                     .select(models::CoreUsers::as_select())
                     .load(&mut conn)
@@ -71,7 +66,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
             let mut count = 0;
 
             for member in current_members {
-                if (&db_users).into_iter().find(|f| {f.user_id == member.user_id}).is_none() {
+                if !db_users.iter().any(|f| {f.user_id == member.user_id}) {
                     let mut conn = get_db!(ctx);
                     {
                         use crate::db::schema::core_users;
@@ -83,7 +78,7 @@ pub fn exec(ctx: Context, msg: Message, args: Vec<String>) -> BoxFuture<'static,
                 } 
             }
 
-            msg.reply_ping(&ctx.http, format!("Added users: {}", count)).await?;
+            msg.reply_ping(&ctx.http, format!("Added users: {count}")).await?;
 
             // log::debug!("{:?}",info);
         }

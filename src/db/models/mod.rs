@@ -1,12 +1,12 @@
-pub(self) mod core_users;
-pub(self) mod moderation_mutes;
-pub(self) mod core_associations;
-pub(self) mod moderation_reports;
-pub(self) mod moderation_messages;
-pub(self) mod moderation_notes;
-pub(self) mod moderation_kicks;
-pub(self) mod moderation_bans;
-pub(self) mod moderation_message_references;
+mod core_users;
+mod moderation_mutes;
+mod core_associations;
+mod moderation_reports;
+mod moderation_messages;
+mod moderation_notes;
+mod moderation_kicks;
+mod moderation_bans;
+mod moderation_message_references;
 
 pub use core_users::*;
 pub use moderation_mutes::*;

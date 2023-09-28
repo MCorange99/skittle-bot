@@ -1,7 +1,7 @@
 pub mod handler;
 
 
-pub const INTERNAL_ERROR: &'static str = concat!(
+pub const INTERNAL_ERROR: &str = concat!(
     "```md\n",
     "# Error\n",
     "An internal error happened\n",

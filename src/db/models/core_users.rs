@@ -50,7 +50,7 @@ impl TryInto<UserRole> for String {
             "moderator" | "mod" => Ok(UserRole::Moderator),
             "administrator" | "admin" => Ok(UserRole::Administrator),
             "founder" => Ok(UserRole::Founder),
-            "botOwner" => Ok(UserRole::BotOwner),
+            "botowner" => Ok(UserRole::BotOwner),
             _ => bail!("Role not found")
         }
     }

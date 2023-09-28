@@ -11,20 +11,18 @@ pub mod actions;
 
 
 #[cfg(feature="sqlite")]
-pub type DbConnection = SqliteConnection;
+pub type Connection = SqliteConnection;
 
-#[cfg(all(
-    not(feature="sqlite")
-))]
+#[cfg(not(feature="sqlite"))]
 compile_error!("Some type of database is required, enable on of these features:\n - sqlite");
 
 
 pub struct Database {
-    pub connection_pool: Pool<ConnectionManager<DbConnection>>
+    pub connection_pool: Pool<ConnectionManager<Connection>>
 }
 
 impl Database {
-    pub fn connect(url: String) -> Result<Self> {
+    pub fn connect(url: &String) -> Result<Self> {
         log::info!("Connecting to database");
 
 
@@ -32,7 +30,7 @@ impl Database {
             #[cfg(feature="sqlite")]
             {
                 log::info!("Using sqlite3 database type");
-                ConnectionManager::<DbConnection>::new(&url)
+                ConnectionManager::<Connection>::new(url)
             }
         };
 

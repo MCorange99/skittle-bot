@@ -1,7 +1,10 @@
-
 #![allow(
-    trivial_bounds
+    clippy::wildcard_imports,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::too_many_lines
 )]
+
 
 #[macro_use]
 mod macros;
@@ -51,7 +54,7 @@ async fn main() -> Result<()>{
     let config = config::get_core_config()?;
     logger_init(&config);
 
-    let database = db::Database::connect(config.database_url.clone())?;
+    let database = db::Database::connect(&config.database_url)?;
 
     let mut cdata = CoreData {
         config,
@@ -62,9 +65,10 @@ async fn main() -> Result<()>{
     let intents = GatewayIntents::all() // lol
         ;
 
-    module_loader::load(&mut cdata)?;
+    module_loader::load(&mut cdata);
     log::info!("Building client");
 
+    #[allow(clippy::default_constructed_unit_structs)] //? The only way to build the struct
     let mut client =
         Client::builder(&cdata.config.secrets.token, intents)
             .event_handler(handler::Handler::default())
