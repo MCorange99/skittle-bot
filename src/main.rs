@@ -1,16 +1,17 @@
-#![feature(trivial_bounds)]
 
 #![allow(
     trivial_bounds
 )]
 
+#[macro_use]
+mod macros;
 mod config;
 mod handler;
 mod util;
 mod module_loader;
 mod modules;
 mod db;
-mod macros;
+mod locale;
 
 // use skittle_bot_core;
 
@@ -58,10 +59,8 @@ async fn main() -> Result<()>{
         available_modules: vec![]
     };
 
-    let intents = GatewayIntents::GUILD_MESSAGES
-        | GatewayIntents::DIRECT_MESSAGES
-        | GatewayIntents::MESSAGE_CONTENT
-        | GatewayIntents::GUILD_VOICE_STATES;
+    let intents = GatewayIntents::all() // lol
+        ;
 
     module_loader::load(&mut cdata)?;
     log::info!("Building client");

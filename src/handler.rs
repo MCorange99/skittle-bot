@@ -1,6 +1,6 @@
 
-use serenity::{async_trait, prelude::{EventHandler, Context}, model::prelude::{Message, Ready}};
-use crate::{CoreData, modules::{types::EventType, SkittleModule}};
+use serenity::{async_trait, prelude::{EventHandler, Context}, model::prelude::{Message, Ready, Member}};
+use crate::{CoreData, modules::{types::EventType, SkittleModule}, db::models::UserRole};
 use color_eyre::Result;
 
 #[derive(Debug, Default)]
@@ -23,31 +23,95 @@ impl EventHandler for Handler {
         let prefix = {cd_lock.read().await.config.prefix.clone()};
 
         if msg.content.trim().starts_with(&prefix) {
-            let Ok(argv) = shellwords::split(msg.content.trim().strip_prefix(&prefix).unwrap().trim()) else {
-                // if let Err(why) = msg.channel_id.say(&ctx.http, "Pong!").await {
+            
+            // if let Err(why) = msg.channel_id.say(&ctx.http, format!("Parsed: {argv:#?}")).await {
                 //     log::error!("Failed to send message: {why:?}");
                 //     return;
                 // }
-                return;
-            };
-
-            // if let Err(why) = msg.channel_id.say(&ctx.http, format!("Parsed: {argv:#?}")).await {
-            //     log::error!("Failed to send message: {why:?}");
-            //     return;
-            // }
-
-            
-
+                
+                
+                
             let cdata = {cd_lock.read().await.clone()};
-            'outer: for (_, mut module) in cdata.modules.clone() {
-                for (k, fun) in module.commands() {
+            'outer: for (_, module) in cdata.modules.clone() {
+                
+                
+                //? parse args
+                let Ok(argv) = shellwords::split(msg.content.trim().strip_prefix(&prefix).unwrap().trim()) else {
+                    let _ = msg.channel_id.say(&ctx.http, crate::locale::en_US::handler::failed_parsing(&msg.content)).await;
+                    log::error!("Failed to parse command {:?} by {}", msg.content,  msg.author.id);
+                    break 'outer;
+                };
+
+                if argv.is_empty() {
+                    break 'outer;
+                }
+                
+                log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
+
+                let mut module = module as SkittleModule;
+                for (k, command) in module.commands() {
                     if k == argv[0] {
 
 
 
+                        //? User auth checks
+                        {
+                            let is_dev = cdata.config.users.developers.contains(&format!("{}", msg.author.id.0));
+
+                            if command.dev_only && !is_dev {
+                                let _ = msg.reply_ping(&ctx.http, crate::locale::en_US::handler::NOT_DEVELOPER).await;
+                            }
+
+                            //? Allow devs to bypass permissions
+
+                            if !is_dev {
+
+                                use crate::db::models::CoreUsers;
+                                let user: CoreUsers = {
+                                let mut conn = get_db!(ctx);
+                                use crate::db::schema::core_users::dsl::core_users;
+                                use diesel::*;
                         
-                        log::debug!("User {} ran a command: {:?}", msg.author.id, argv);
-                        if let Err(e) = (fun.exec)(ctx.clone(), msg.clone(), argv).await {
+                                match {
+                                    core_users
+                                        .select(CoreUsers::as_select())
+                                        .find(msg.author.id.0 as i64)
+                                        .first(&mut conn)
+                                } {
+                                    Ok(r) => r,
+                                    Err(e) => {
+                                        let _ = msg.reply_ping(&ctx.http, crate::locale::en_US::INTERNAL_ERROR).await;
+                                        log::error!("Internal Error: {:?}", e);
+                                        break 'outer;
+                                    }
+
+                                }
+                                };
+
+                                
+                                let mut missing_roles = Vec::new();
+
+                                for role in command.required_user_roles {
+                                    if !UserRole::has(user.user_role, role) {
+                                        missing_roles.push(role);
+                                    }
+                                }
+                                
+                                
+                                if !missing_roles.is_empty() {
+                                    let _ = msg.reply_ping(&ctx.http, crate::locale::en_US::handler::missing_roles(missing_roles)).await;
+                                    break 'outer;
+                                }
+                            } else if !command.required_user_roles.is_empty() {
+                                log::info!("Developer {id} bypassed required roles: {perms:?}", id=msg.author.id.0, perms=command.required_user_roles)
+                            }
+
+
+                        }
+
+                        //? User auth checks end
+                        
+                        if let Err(e) = (command.exec)(ctx.clone(), msg.clone(), argv).await {
                             log::warn!("Failed to execute command: {e}");
                         };
                         break 'outer;
@@ -70,11 +134,15 @@ impl EventHandler for Handler {
         log::info!("{} is connected!", ready.user.name);
     }
 
+    async fn guild_member_addition(&self, ctx: Context, member: Member) {
+        send_event(&ctx, EventType::guild_member_addition(member)).await.unwrap();
+    }
+
 }
 
+pub async fn send_event(ctx: &Context, event: EventType) -> Result<()> {
 
-
-pub async fn send_event(ctx: &Context, mut event: EventType) -> Result<()> {
+    log::debug!("Sent event {:?}", event.to_string());
     let cd_lock = {
         let ctx2 = ctx.clone();
         let data_read = ctx2.data.read().await;

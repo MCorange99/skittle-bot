@@ -13,7 +13,7 @@ pub fn register() -> SkittleModuleCommand {
             ("mute [user] [length] [reason]", "Mutes a user with a reason Eg. mute @mcorane 1d \"Lol y not\""),
         ])
         .dev_only(false)
-        .required_user_permissions(vec![
+        .required_user_roles(vec![
 
         ])
         .required_bot_permissions(vec![

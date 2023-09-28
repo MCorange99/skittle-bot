@@ -15,7 +15,7 @@ pub fn register() -> SkittleModuleCommand {
             ("modules [module name] [enable/disable]",  "disables/enables module"),
         ])
         .dev_only(true)
-        .required_user_permissions(vec![])
+        .required_user_roles(vec![])
         .required_bot_permissions(vec![])
         .build()
 }

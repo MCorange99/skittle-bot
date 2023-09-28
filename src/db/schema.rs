@@ -2,7 +2,7 @@
 
 diesel::table! {
     core_associations (association_id) {
-        association_id -> Nullable<BigInt>,
+        association_id -> BigInt,
         user_id -> BigInt,
         associated_user_id -> BigInt,
     }
@@ -10,17 +10,14 @@ diesel::table! {
 
 diesel::table! {
     core_users (user_id) {
-        user_id -> Nullable<BigInt>,
-        user_name -> Text,
-        user_nickname -> Text,
-        user_created_at -> BigInt,
+        user_id -> BigInt,
         user_role -> BigInt,
     }
 }
 
 diesel::table! {
     moderation_bans (ban_id) {
-        ban_id -> Nullable<BigInt>,
+        ban_id -> BigInt,
         target_id -> BigInt,
         moderator_id -> BigInt,
         ban_reason -> Nullable<Text>,
@@ -30,7 +27,7 @@ diesel::table! {
 
 diesel::table! {
     moderation_kicks (kick_id) {
-        kick_id -> Nullable<BigInt>,
+        kick_id -> BigInt,
         target_id -> BigInt,
         moderator_id -> BigInt,
         kick_reason -> Nullable<Text>,
@@ -39,34 +36,34 @@ diesel::table! {
 
 diesel::table! {
     moderation_message_references (message_reference, entry_id) {
-        message_reference -> Nullable<BigInt>,
-        entry_id -> Nullable<BigInt>,
+        message_reference -> BigInt,
+        entry_id -> BigInt,
         message_id -> BigInt,
-        note -> Nullable<Text>,
+        note -> Text,
     }
 }
 
 diesel::table! {
     moderation_messages (message_id) {
-        message_id -> Nullable<BigInt>,
+        message_id -> BigInt,
         message_link -> Text,
     }
 }
 
 diesel::table! {
     moderation_mutes (mute_id) {
-        mute_id -> Nullable<BigInt>,
+        mute_id -> BigInt,
         target_id -> BigInt,
         moderator_id -> BigInt,
         reason -> Nullable<Text>,
-        timestamp -> Double,
-        duration -> Nullable<Double>,
+        timestamp -> BigInt,
+        duration -> Nullable<BigInt>,
     }
 }
 
 diesel::table! {
     moderation_notes (note_id) {
-        note_id -> Nullable<BigInt>,
+        note_id -> BigInt,
         target_id -> BigInt,
         moderator_id -> BigInt,
         note -> Text,
@@ -76,12 +73,12 @@ diesel::table! {
 
 diesel::table! {
     moderation_reports (report_id) {
-        report_id -> Nullable<BigInt>,
+        report_id -> BigInt,
         target_id -> BigInt,
         moderator_id -> BigInt,
-        report_title -> Nullable<Text>,
-        report_description -> Nullable<Text>,
-        timestamp -> Nullable<Double>,
+        report_title -> Text,
+        report_description -> Text,
+        timestamp -> BigInt,
     }
 }
 

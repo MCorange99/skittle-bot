@@ -2,7 +2,7 @@
 macro_rules! read_type_map {
     ($type:ty, $ctx:expr) => {
         {
-            let data_read = $ctx.data.try_write()?;
+            let data_read = $ctx.data.try_write().unwrap();
             data_read.get::<$type>().unwrap().clone()
         }
     };
@@ -25,34 +25,18 @@ macro_rules! get_type_map_data_ro_cloned {
 
 
 #[macro_export]
-macro_rules! with_db {
-    ($ctx:expr, $body:expr) => {
+macro_rules! get_db {
+    ($ctx:expr) => {
         {   
             use crate::read_type_map;
             use crate::db::Database;
+            #[allow(unused_imports)]
+            use color_eyre::Result;
 
             let db_lock = read_type_map!(Database, $ctx);
-            let db_lock = db_lock.lock();
-            let db = match db_lock {
-                Ok(db) => db,
-                Err(_) => {
-                    log::error!("Unable to access database lock");
-                    return Ok(());
-                }
-            };
+            let db = db_lock.lock().unwrap();
 
-            let mut conn = match db.connection_pool.get() {
-                Ok(p) => p,
-                Err(_) => {
-                    log::error!("Unable to access db connection from pool");
-                    return Ok(());
-                }
-            };
-
-            match $body(&mut conn) {
-                Ok(r) => Ok(r),
-                Err(e) => Err(e.into())
-            }
+            db.connection_pool.get().unwrap()
         }
     };
 }
@@ -62,10 +46,13 @@ macro_rules! with_db {
 macro_rules! try_parse_args {
     ($type:ty, $msg:expr, $ctx:expr, $args:expr) => {
         {
-            match <$type>::try_parse_from($args) {
+            let _msg: &Message = &$msg;
+            let _ctx: &Context = &$ctx;
+            let _args: &Vec<String> = &$args;
+            match <$type>::try_parse_from(_args) {
                 Ok(r) => r,
                 Err(e) => {
-                    $msg.reply_ping(&$ctx.http, format!("```{}```", e.render())).await?;
+                    _msg.reply_ping(&_ctx.http, format!("```{}```", e.render())).await?;
                     return Ok(());
                 }
             }

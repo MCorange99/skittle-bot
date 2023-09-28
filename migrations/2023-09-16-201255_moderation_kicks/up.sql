@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE IF NOT EXISTS "moderation_kicks" (
-	"kick_id"	BIGINT,
+	"kick_id"	BIGINT NOT NULL,
 	"target_id"	BIGINT NOT NULL,
 	"moderator_id"	BIGINT NOT NULL,
 	"kick_reason"	TEXT,

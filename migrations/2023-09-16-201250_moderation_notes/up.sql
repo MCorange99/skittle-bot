@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE IF NOT EXISTS "moderation_notes" (
-	"note_id"	BIGINT,
+	"note_id"	BIGINT NOT NULL,
 	"target_id"	BIGINT NOT NULL,
 	"moderator_id"	BIGINT NOT NULL,
 	"note"	TEXT NOT NULL,

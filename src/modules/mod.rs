@@ -11,10 +11,13 @@ pub mod moderation;
 #[cfg(feature = "music")]
 pub mod music;
 
-use std::collections::HashMap;
-use serenity::model::Permissions;
 
+use std::{collections::HashMap, fmt::Write};
+use serenity::{model::{Permissions, prelude::Message}, prelude::Context};
+use color_eyre::Result;
 use types::SkittleModuleCommandFn;
+
+use crate::db::models::UserRole;
 
 use self::types::SkittleModuleEventManagerFn;
 
@@ -24,7 +27,7 @@ pub struct SkittleModuleCommand {
     pub description: String,
     pub help: Vec<(String, String)>,
     pub dev_only: bool,
-    pub required_user_permissions: Vec<Permissions>,
+    pub required_user_roles: Vec<UserRole>,
     pub required_bot_permissions: Vec<Permissions>,
 }
 
@@ -39,7 +42,7 @@ impl SkittleModuleCommandBuilder {
                 exec,
                 help: Vec::new(), 
                 dev_only: false, 
-                required_user_permissions: Vec::new(), 
+                required_user_roles: Vec::new(), 
                 required_bot_permissions: Vec::new(),
                 description: String::new(),
             }
@@ -54,8 +57,8 @@ impl SkittleModuleCommandBuilder {
         self.inner.dev_only = val;
         self
     }
-    pub fn required_user_permissions(&mut self, val: Vec<Permissions>) -> &mut Self {
-        self.inner.required_user_permissions = val;
+    pub fn required_user_roles(&mut self, val: Vec<UserRole>) -> &mut Self {
+        self.inner.required_user_roles = val;
         self
     }
     pub fn required_bot_permissions(&mut self, val: Vec<Permissions>) -> &mut Self {
@@ -146,5 +149,37 @@ impl SkittleModule {
 
     pub fn event_handler(&mut self) -> Option<SkittleModuleEventManagerFn> {
         self.event_handler
+    }
+}
+
+
+pub struct Stdout {
+    buf: String,
+    msg: Message,
+    ctx: Context
+}
+
+impl Stdout {
+    pub fn new(msg: &Message, ctx: &Context) -> Self {
+        Self {
+            buf: String::new(),
+            msg: msg.clone(),
+            ctx: ctx.clone()
+        }
+    }
+
+    pub async fn flush(&mut self) -> Result<()> {
+        self.msg.reply_ping(&self.ctx.http, format!(
+            "```sh\n{}```",
+            self.buf
+        )).await?;
+        self.buf.clear();
+        Ok(())
+    }
+}
+
+impl Write for Stdout {
+    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        self.buf.write_str(s)
     }
 }

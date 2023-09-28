@@ -11,7 +11,7 @@ pub fn register() -> SkittleModuleCommand {
             ("ping", "check if bot is responsive")
         ])
         .dev_only(false)
-        .required_user_permissions(vec![])
+        .required_user_roles(vec![])
         .required_bot_permissions(vec![])
         .build()
 }

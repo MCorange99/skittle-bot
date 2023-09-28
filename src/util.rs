@@ -44,3 +44,25 @@ pub fn get_time_len(duration: String) -> Result<Timestamp> {
 
     Err(color_eyre::eyre::eyre!("No time detected"))
 }
+
+pub fn parse_user_id(str_id: String) -> Result<i64> {
+    use color_eyre::eyre::bail;
+    if str_id.len() == 18 { // id
+        let parsed = str_id.parse::<u64>();
+        match parsed {
+            Ok(id) => Ok(id as i64),
+            Err(_) => bail!("Failed to parse user id"),
+        }
+
+    } else
+    if str_id.len() == 21 {// Mention
+        let parsed = (&str_id[2..str_id.len()-1]).parse::<u64>();
+        match parsed {
+            Ok(id) => Ok(id as i64),
+            Err(_) => bail!("Failed to parse user mention id"),
+        }
+
+    } else {
+        bail!("Failed to parse user id (bad len)")
+    }
+}

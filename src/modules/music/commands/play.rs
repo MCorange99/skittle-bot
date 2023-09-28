@@ -11,7 +11,7 @@ pub fn register() -> SkittleModuleCommand {
             ("play [url]", "Plays a song")
         ])
         .dev_only(false)
-        .required_user_permissions(vec![])
+        .required_user_roles(vec![])
         .required_bot_permissions(vec![])
         .build()
 }

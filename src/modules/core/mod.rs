@@ -16,6 +16,7 @@ pub fn register() -> SkittleModule {
     module.register_command("modules",commands::modules::register());
     module.register_command("help",   commands::help::register());
     module.register_command("database",   commands::database::register());
+    module.register_command("rolemgr",   commands::rolemgr::register());
 
     module.register_event_handler(events::handler);
 

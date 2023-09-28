@@ -13,7 +13,7 @@ pub fn register() -> SkittleModuleCommand {
             ("help [command]", " (shows help for a specific command)")
         ])
         .dev_only(false)
-        .required_user_permissions(vec![])
+        .required_user_roles(vec![])
         .required_bot_permissions(vec![])
         .build()
 }

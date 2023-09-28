@@ -2,7 +2,6 @@ use std::sync::{Mutex, Arc};
 
 use diesel::r2d2::{ConnectionManager, Pool};
 use diesel::sqlite::SqliteConnection;
-use diesel::prelude::*;
 use color_eyre::Result;
 use serenity::prelude::TypeMapKey;
 
